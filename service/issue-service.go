@@ -15,8 +15,8 @@ var (
 
 type IssueService interface {
 	CreateIssue(issueReq *model.IssueReq) (*model.Issue, error)
-	GetDetails(issueId string) (*model.IssueDTO, error)
-	UpdateStatus(issueId string, status string) error
+	GetDetails(issueID string) (*model.IssueDTO, error)
+	UpdateStatus(issueID string, status string) error
 }
 
 type issueservice struct{}
@@ -26,53 +26,70 @@ func NewIssueService() IssueService {
 }
 
 func (*issueservice) CreateIssue(issueReq *model.IssueReq) (*model.Issue, error) {
-	assigneeID, _ := uuid.NewRandom()
+	newAssigneID, _ := uuid.NewRandom()
 
-	assignee := &model.Assignee{Id: assigneeID.String(), Email: issueReq.Assignee.Email, UserName: issueReq.Assignee.UserName}
+	var assignee = &model.Assignee{
+		Id:       newAssigneID.String(),
+		Email:    issueReq.Assignee.Email,
+		UserName: issueReq.Assignee.UserName,
+	}
 
-	assigneeId, err := assigneerepo.AddAssignee(assignee)
-
+	assigneeID, err := assigneerepo.AddAssignee(assignee)
 	if err != nil {
 		return nil, err
 	}
-	issueId := fmt.Sprintf("%d", time.Now().UnixNano())
-	issue := &model.Issue{Id: issueId,
-		Status: issueReq.Status, Title: issueReq.Title, Fp: issueReq.Fp, Link: issueReq.Link, Name: issueReq.Name,
-		Path: issueReq.Path, Severity: issueReq.Severity, ProjectName: issueReq.ProjectName,
-		TemplateMD: issueReq.TemplateMD, AssigneeId: assigneeId, Labels: issueReq.Labels, VulnDetail: model.JSONB{issueReq.VulnDetail}}
 
-	err = issueRepo.AddIssue(issue)
-	if err != nil {
+	var issueID = fmt.Sprintf("%d", time.Now().UnixNano())
+	var issue = &model.Issue{
+		ID:          issueID,
+		Status:      issueReq.Status,
+		Title:       issueReq.Title,
+		Fp:          issueReq.Fp,
+		Link:        issueReq.Link,
+		Name:        issueReq.Name,
+		Path:        issueReq.Path,
+		Severity:    issueReq.Severity,
+		ProjectName: issueReq.ProjectName,
+		TemplateMD:  issueReq.TemplateMD,
+		AssigneeID:  assigneeID,
+		Labels:      issueReq.Labels,
+		VulnDetail:  model.JSONB{issueReq.VulnDetail},
+	}
+
+	if err = issueRepo.AddIssue(issue); err != nil {
 		return nil, err
 	}
+
 	return issue, err
 }
 
-func (*issueservice) GetDetails(issueId string) (*model.IssueDTO, error) {
-
-	issue, err := issueRepo.GetDetails(issueId)
+func (*issueservice) GetDetails(issueID string) (*model.IssueDTO, error) {
+	issue, err := issueRepo.GetDetails(issueID)
 	if err != nil {
 		return nil, err
 	}
 
-	assignee, err := assigneerepo.GetAssignee(issue.AssigneeId)
+	assignee, err := assigneerepo.GetAssignee(issue.AssigneeID)
 	if err != nil {
 		return nil, err
 	}
 
-	issueDTO := model.IssueDTO{Id: issue.Id, Status: issue.Status, Title: issue.Title,
-		TemplateMD: issue.TemplateMD, Assignee: model.Assignee{Email: assignee.Email, UserName: assignee.UserName}, Labels: issue.Labels}
-
-	if err != nil {
-		return nil, err
+	var issueDTO = model.IssueDTO{
+		ID:         issue.ID,
+		Status:     issue.Status,
+		Title:      issue.Title,
+		TemplateMD: issue.TemplateMD,
+		Assignee:   model.Assignee{Email: assignee.Email, UserName: assignee.UserName},
+		Labels:     issue.Labels,
 	}
+
 	return &issueDTO, nil
 }
 
-func (*issueservice) UpdateStatus(issueId string, status string) error {
-	err := issueRepo.UpdateStatus(issueId, status)
-	if err != nil {
-		return err
+func (*issueservice) UpdateStatus(issueID string, status string) error {
+	if err := issueRepo.UpdateStatus(issueID, status); err != nil {
+		return fmt.Errorf("failed to update issue status")
 	}
-	return err
+
+	return nil
 }

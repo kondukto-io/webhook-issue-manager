@@ -10,7 +10,7 @@ import (
 )
 
 type IssueReq struct {
-	Id          string         `json:"id" gorm:"primaryKey"`
+	ID          string         `json:"id" gorm:"primaryKey"`
 	Status      string         `json:"status"`
 	Title       string         `json:"title"`
 	Fp          bool           `json:"fp"`
@@ -28,7 +28,7 @@ type IssueReq struct {
 type JSONB []interface{}
 
 type Issue struct {
-	Id          string         `json:"id" gorm:"primaryKey"`
+	ID          string         `json:"id" gorm:"primaryKey"`
 	Status      string         `json:"status"`
 	Title       string         `json:"title"`
 	Fp          bool           `json:"fp"`
@@ -38,13 +38,13 @@ type Issue struct {
 	Severity    string         `json:"severity"`
 	TemplateMD  string         `json:"template_md"`
 	ProjectName string         `json:"project_name"`
-	AssigneeId  string         `json:"assignee_id"`
+	AssigneeID  string         `json:"assignee_id"`
 	Labels      pq.StringArray `json:"labels" gorm:"type:text[]"`
 	VulnDetail  JSONB          `json:"vulnerability" gorm:"type:jsonb"`
 }
 
 type IssueDTO struct {
-	Id         string   `json:"id" gorm:"primaryKey"`
+	ID         string   `json:"id" gorm:"primaryKey"`
 	Status     string   `json:"status"`
 	Title      string   `json:"title"`
 	TemplateMD string   `json:"template_md"`

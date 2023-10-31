@@ -3,11 +3,9 @@ package attachmentrepository
 import (
 	"context"
 	"encoding/base64"
-	"errors"
 	"fmt"
-	"io/fs"
-	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
@@ -28,26 +26,24 @@ func NewAttachmentRepository() AttachmentRepository {
 
 // AddAttachment implements AttachmentRepository
 func (*attachmentrepository) AddAttachment(attachmentReq *model.AttachmentReq) error {
-
-	ctx := context.Background()
+	var ctx = context.Background()
 	minioClient, err := config.MinioConnection()
 	if err != nil {
-		return errors.New("Error: " + err.Error())
+		return fmt.Errorf("failed to connect Minio: %w", err)
 	}
 
-	base64Text := make([]byte, base64.StdEncoding.DecodedLen(len(attachmentReq.Base64Content)))
+	var base64Text = make([]byte, base64.StdEncoding.DecodedLen(len(attachmentReq.Base64Content)))
 	base64.StdEncoding.Decode(base64Text, []byte(attachmentReq.Base64Content))
 
-	permissions := 0644
-	fileP := "C:/code/minio"
-	file := fmt.Sprintf("%s/%s_%s.jpeg", fileP, attachmentReq.Title, attachmentReq.IssueId)
-	err = ioutil.WriteFile(file, base64Text, fs.FileMode(permissions))
-	if err != nil {
-		return err
+	var fileP = "/opt/.kondukto/screenshots"
+	var objectID = attachmentReq.UUID
+	var filePath = fmt.Sprintf("%s/%s", fileP, objectID)
+	if err = os.WriteFile(filePath, base64Text, 0644); err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
 	}
 
-	// Make a new bucket called mymusic.
-	bucketName := "attachments"
+	// Make a new bucket
+	var bucketName = "attachments"
 
 	err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{})
 	if err != nil {
@@ -62,25 +58,23 @@ func (*attachmentrepository) AddAttachment(attachmentReq *model.AttachmentReq) e
 		log.Printf("Successfully created %s\n", bucketName)
 	}
 
-	objectName := attachmentReq.Title + "_" + attachmentReq.IssueId + ".jpeg"
-	filePath := file
-	contentType := "image/jpeg"
+	var contentType = "image/jpeg"
 
-	_, err = minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
+	_, err = minioClient.FPutObject(ctx, bucketName, objectID, filePath, minio.PutObjectOptions{ContentType: contentType})
 	if err != nil {
 		return err
 	}
 
-	attachmentId, _ := uuid.NewRandom()
+	attachmentID, _ := uuid.NewRandom()
 
-	attachment := model.Attachment{
-		Id:       attachmentId.String(),
-		IssueId:  attachmentReq.IssueId,
+	var attachment = model.Attachment{
+		ID:       attachmentID.String(),
+		IssueID:  attachmentReq.IssueID,
 		Title:    attachmentReq.Title,
 		FilePath: filePath,
 	}
 
-	db := postgres.Inıt()
+	var db = postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
 	db.Create(&attachment)

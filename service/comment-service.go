@@ -14,7 +14,7 @@ var (
 
 type CommentService interface {
 	CreateComment(commentReq *model.CommentReq) error
-	GetComment(issueId string) (*model.CommentDTOArray, error)
+	GetComment(issueID string) (*model.CommentDTOArray, error)
 }
 
 type commentservice struct{}
@@ -42,8 +42,8 @@ func (*commentservice) CreateComment(commentReq *model.CommentReq) error {
 }
 
 // GetComment implements CommentService
-func (*commentservice) GetComment(issueId string) (*model.CommentDTOArray, error) {
-	comments, err := commentrepo.GetComments(issueId)
+func (*commentservice) GetComment(issueID string) (*model.CommentDTOArray, error) {
+	comments, err := commentrepo.GetComments(issueID)
 	if err != nil {
 		return nil, err
 	}

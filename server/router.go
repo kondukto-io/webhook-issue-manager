@@ -14,11 +14,11 @@ var (
 )
 
 func Router() *fiber.App {
-
-	app := fiber.New()
+	var app = fiber.New()
 	app.Use(logger.New())
 	app.Post("/tokens", tokenHandler.CreateToken)
-	v1 := app.Group("api/v1")
+
+	var v1 = app.Group("api/v1")
 	{
 		testGroup := v1.Group("test")
 		testGroup.Use(tokenHandler.TokenValidatorMiddleware)
@@ -29,13 +29,12 @@ func Router() *fiber.App {
 
 		issueGroup.Post("", issueHandler.CreateIssue)
 		issueGroup.Get("/:id", issueHandler.GetDetails)
-		issueGroup.Patch("/:id", issueHandler.Update)
+		issueGroup.Patch("/:id", issueHandler.UpdateStatus)
 		issueGroup.Post("/:id/attachments", issueHandler.AddAttachment)
 
 		commentGroup := issueGroup.Group("/:id/comments")
 		commentGroup.Post("", commentHandler.CreateComment)
 		commentGroup.Get("", commentHandler.GetComments)
-
 	}
 
 	app.Listen(":3000")
