@@ -5,15 +5,15 @@ type AttachmentReqArray struct {
 }
 
 type AttachmentReq struct {
-	Id            string `json:"id" gorm:"primaryKey;autoIncrement"`
-	IssueId       string `json:"issueId"`
+	UUID          string `json:"id" gorm:"primaryKey;autoIncrement"`
+	IssueID       string `json:"issueID"`
 	Title         string `json:"title"`
 	Base64Content string `json:"base64content"`
 }
 
 type Attachment struct {
-	Id       string
-	IssueId  string
+	ID       string
+	IssueID  string
 	Title    string
 	FilePath string
 }

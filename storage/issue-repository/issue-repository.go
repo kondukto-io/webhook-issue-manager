@@ -10,8 +10,8 @@ import (
 
 type IssueRepository interface {
 	AddIssue(issue *model.Issue) error
-	GetDetails(issueId string) (*model.Issue, error)
-	UpdateStatus(issueId string, status string) error
+	GetDetails(issueID string) (*model.Issue, error)
+	UpdateStatus(issueID string, status string) error
 }
 
 type issuerepository struct{}
@@ -21,7 +21,7 @@ func NewIssueRepository() IssueRepository {
 }
 
 func (*issuerepository) AddIssue(issue *model.Issue) error {
-	db := postgres.Inıt()
+	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
 	if err := db.Create(issue); err.Error != nil {
@@ -32,26 +32,26 @@ func (*issuerepository) AddIssue(issue *model.Issue) error {
 	return nil
 }
 
-func (*issuerepository) GetDetails(issueId string) (*model.Issue, error) {
+func (*issuerepository) GetDetails(issueID string) (*model.Issue, error) {
 	var issue model.Issue
-	db := postgres.Inıt()
+	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
-	if issueId == "" {
+	if issueID == "" {
 		fmt.Println("TokenID can not be empty")
 	}
-	result := db.Where("id = ?", issueId).Find(&issue)
+	result := db.Where("id = ?", issueID).Find(&issue)
 	if result.Error != nil {
 		return nil, errors.New("record is not found")
 	}
 	return &issue, nil
 }
 
-func (*issuerepository) UpdateStatus(issueId string, status string) error {
+func (*issuerepository) UpdateStatus(issueID string, status string) error {
 	var issue *model.Issue
-	db := postgres.Inıt()
+	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
-	db.Model(&issue).Where("id = ?", issueId).Update("status", status)
+	db.Model(&issue).Where("id = ?", issueID).Update("status", status)
 	return nil
 }

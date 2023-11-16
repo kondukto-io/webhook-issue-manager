@@ -17,7 +17,7 @@ var (
 type IssueHandler interface {
 	CreateIssue(c *fiber.Ctx) error
 	GetDetails(c *fiber.Ctx) error
-	Update(c *fiber.Ctx) error
+	UpdateStatus(c *fiber.Ctx) error
 	AddAttachment(c *fiber.Ctx) error
 }
 
@@ -29,11 +29,10 @@ func NewIssueHandler() IssueHandler {
 
 func (*issuehandler) CreateIssue(c *fiber.Ctx) error {
 	var issueReq *model.IssueReq
-	err := json.Unmarshal(c.Body(), &issueReq)
-
-	if err != nil {
+	if err := json.Unmarshal(c.Body(), &issueReq); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 	}
+
 	issue, err := issueService.CreateIssue(issueReq)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
@@ -43,8 +42,8 @@ func (*issuehandler) CreateIssue(c *fiber.Ctx) error {
 }
 
 func (*issuehandler) GetDetails(c *fiber.Ctx) error {
-	issueId := c.Params("id")
-	issueDTO, err := issueService.GetDetails(issueId)
+	var issueID = c.Params("id")
+	issueDTO, err := issueService.GetDetails(issueID)
 	if err != nil {
 		return err
 	}
@@ -52,39 +51,35 @@ func (*issuehandler) GetDetails(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(issueDTO)
 }
 
-func (*issuehandler) Update(c *fiber.Ctx) error {
+func (*issuehandler) UpdateStatus(c *fiber.Ctx) error {
 	var issue *model.Issue
-	issueId := c.Params("id")
+	var issueID = c.Params("id")
 
-	err := json.Unmarshal(c.Body(), &issue)
-	if err != nil {
+	if err := json.Unmarshal(c.Body(), &issue); err != nil {
 		return err
 	}
 
-	err = issueService.UpdateStatus(issueId, issue.Status)
-	if err != nil {
+	if err := issueService.UpdateStatus(issueID, issue.Status); err != nil {
 		return err
 	}
 
-	return c.Status(http.StatusOK).JSON(fiber.Map{"id": issueId, "status": issue.Status})
+	return c.Status(http.StatusOK).JSON(fiber.Map{"id": issueID, "status": issue.Status})
 }
 
 // AddAttachment implements AttachmentHandler
 func (*issuehandler) AddAttachment(c *fiber.Ctx) error {
 	var attachmentReqArray *model.AttachmentReqArray
-	issueId := c.Params("id")
+	var issueID = c.Params("id")
 
-	err := json.Unmarshal(c.Body(), &attachmentReqArray)
-	if err != nil {
+	if err := json.Unmarshal(c.Body(), &attachmentReqArray); err != nil {
 		return err
 	}
 	for _, attachmentReq := range attachmentReqArray.AttachmentReq {
-		attachmentReq.IssueId = issueId
-		err = attachmentService.CreateAttachment(&attachmentReq)
-		if err != nil {
+		attachmentReq.IssueID = issueID
+
+		if err := attachmentService.CreateAttachment(&attachmentReq); err != nil {
 			return err
 		}
-
 	}
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{"message": "attachments added succesfully"})

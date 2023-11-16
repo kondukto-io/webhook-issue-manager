@@ -10,7 +10,7 @@ import (
 
 type CommentRepository interface {
 	AddComments(comment *model.Comment) error
-	GetComments(issueId string) ([]*model.Comment, error)
+	GetComments(issueID string) ([]*model.Comment, error)
 }
 
 type commentrepository struct{}
@@ -21,7 +21,7 @@ func NewCommentHandler() CommentRepository {
 
 // CreateComments implements CommentRepository
 func (*commentrepository) AddComments(comment *model.Comment) error {
-	db := postgres.Inıt()
+	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
 	err := db.Create(comment).Error
@@ -33,15 +33,15 @@ func (*commentrepository) AddComments(comment *model.Comment) error {
 }
 
 // GetComments implements CommentRepository
-func (*commentrepository) GetComments(issueId string) ([]*model.Comment, error) {
+func (*commentrepository) GetComments(issueID string) ([]*model.Comment, error) {
 	var comment []*model.Comment
-	db := postgres.Inıt()
+	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
-	if issueId == "" {
+	if issueID == "" {
 		fmt.Println("")
 	}
-	result := db.Where("issue_id = ?", issueId).Find(&comment)
+	result := db.Where("issue_id = ?", issueID).Find(&comment)
 	if result.Error != nil {
 		return nil, errors.New("record is not found")
 	}

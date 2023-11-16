@@ -21,7 +21,7 @@ func NewTokenRepository() TokenRepository {
 
 // AddToken implements TokenRepository
 func (*repo) AddToken(token *model.Token) (*model.Token, error) {
-	db := postgres.Inıt()
+	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
 	err := db.Create(token).Error
@@ -34,7 +34,7 @@ func (*repo) AddToken(token *model.Token) (*model.Token, error) {
 // GetToken implements TokenRepository
 func (*repo) GetToken(tokenId string) (*model.Token, error) {
 	var token model.Token
-	db := postgres.Inıt()
+	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
 	if tokenId == "" {
