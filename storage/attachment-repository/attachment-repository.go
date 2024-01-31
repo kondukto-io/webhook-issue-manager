@@ -18,14 +18,14 @@ type AttachmentRepository interface {
 	AddAttachment(attachmentReq *model.AttachmentReq) error
 }
 
-type attachmentrepository struct{}
+type attachmentRepository struct{}
 
 func NewAttachmentRepository() AttachmentRepository {
-	return &attachmentrepository{}
+	return &attachmentRepository{}
 }
 
 // AddAttachment implements AttachmentRepository
-func (*attachmentrepository) AddAttachment(attachmentReq *model.AttachmentReq) error {
+func (*attachmentRepository) AddAttachment(attachmentReq *model.AttachmentReq) error {
 	var ctx = context.Background()
 	minioClient, err := config.MinioConnection()
 	if err != nil {

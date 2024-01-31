@@ -13,14 +13,14 @@ type CommentRepository interface {
 	GetComments(issueID string) ([]*model.Comment, error)
 }
 
-type commentrepository struct{}
+type commentRepository struct{}
 
 func NewCommentHandler() CommentRepository {
-	return &commentrepository{}
+	return &commentRepository{}
 }
 
 // CreateComments implements CommentRepository
-func (*commentrepository) AddComments(comment *model.Comment) error {
+func (*commentRepository) AddComments(comment *model.Comment) error {
 	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
@@ -33,7 +33,7 @@ func (*commentrepository) AddComments(comment *model.Comment) error {
 }
 
 // GetComments implements CommentRepository
-func (*commentrepository) GetComments(issueID string) ([]*model.Comment, error) {
+func (*commentRepository) GetComments(issueID string) ([]*model.Comment, error) {
 	var comment []*model.Comment
 	db := postgres.Init()
 	sqlDb, _ := db.DB()

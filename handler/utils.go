@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/webhook-issue-manager/model"
 )
 
@@ -14,7 +14,6 @@ var (
 )
 
 func verifyToken(token string) (*model.Payload, error) {
-
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
@@ -25,17 +24,10 @@ func verifyToken(token string) (*model.Payload, error) {
 
 	jwtToken, err := jwt.ParseWithClaims(token, &model.Payload{}, keyFunc)
 	if err != nil {
-		verr, ok := err.(*jwt.ValidationError)
-		if ok && errors.Is(verr.Inner, ErrExpiredToken) {
-			return nil, ErrExpiredToken
-		}
+		return nil, ErrInvalidToken
+	} else if claims, ok := jwtToken.Claims.(*model.Payload); ok {
+		return claims, nil
+	} else {
 		return nil, ErrInvalidToken
 	}
-
-	payload, ok := jwtToken.Claims.(*model.Payload)
-	if !ok {
-		return nil, ErrInvalidToken
-	}
-	return payload, nil
-
 }

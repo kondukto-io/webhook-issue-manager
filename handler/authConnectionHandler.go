@@ -8,13 +8,13 @@ type TestHandler interface {
 	TestIssue(c *fiber.Ctx) error
 }
 
-type testhandler struct{}
+type testHandler struct{}
 
 func NewTestConnectionHandlers() TestHandler {
-	return &testhandler{}
+	return &testHandler{}
 }
 
-func (*testhandler) TestIssue(c *fiber.Ctx) error {
+func (*testHandler) TestIssue(c *fiber.Ctx) error {
 	c.SendStatus(fiber.StatusOK)
 	c.JSON(fiber.Map{"connection": true})
 	return nil

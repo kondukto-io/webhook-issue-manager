@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	assigneerepo assigneerepository.AssigneeRepository = assigneerepository.NewAssigneeHandler()
+	assigneerepo = assigneerepository.NewAssigneeHandler()
 )
 
 type AssigneeService interface {
@@ -14,14 +14,14 @@ type AssigneeService interface {
 	GetAssignee(assigneeId string) (*model.Assignee, error)
 }
 
-type assigneeservice struct{}
+type assigneeService struct{}
 
 func NewAssigneeService() AssigneeService {
-	return &assigneeservice{}
+	return &assigneeService{}
 }
 
 // CreateAssignee implements AssigneeService
-func (*assigneeservice) CreateAssignee(assignee *model.Assignee) (string, error) {
+func (*assigneeService) CreateAssignee(assignee *model.Assignee) (string, error) {
 	assigneId, err := assigneerepo.AddAssignee(assignee)
 	if err != nil {
 		return "", err
@@ -30,7 +30,7 @@ func (*assigneeservice) CreateAssignee(assignee *model.Assignee) (string, error)
 }
 
 // GetAssignee implements AssigneeService
-func (*assigneeservice) GetAssignee(assigneeId string) (*model.Assignee, error) {
+func (*assigneeService) GetAssignee(assigneeId string) (*model.Assignee, error) {
 	assignee, err := assigneerepo.GetAssignee(assigneeId)
 	if err != nil {
 		return nil, err

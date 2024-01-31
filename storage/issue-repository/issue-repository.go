@@ -2,7 +2,6 @@ package issuerepository
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/webhook-issue-manager/model"
 	"github.com/webhook-issue-manager/storage/postgres"
@@ -14,13 +13,13 @@ type IssueRepository interface {
 	UpdateStatus(issueID string, status string) error
 }
 
-type issuerepository struct{}
+type issueRepository struct{}
 
 func NewIssueRepository() IssueRepository {
-	return &issuerepository{}
+	return &issueRepository{}
 }
 
-func (*issuerepository) AddIssue(issue *model.Issue) error {
+func (*issueRepository) AddIssue(issue *model.Issue) error {
 	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
@@ -32,14 +31,15 @@ func (*issuerepository) AddIssue(issue *model.Issue) error {
 	return nil
 }
 
-func (*issuerepository) GetDetails(issueID string) (*model.Issue, error) {
+func (*issueRepository) GetDetails(issueID string) (*model.Issue, error) {
+	if issueID == "" {
+		return nil, errors.New("issue id can not be empty")
+	}
+
 	var issue model.Issue
 	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
-	if issueID == "" {
-		fmt.Println("TokenID can not be empty")
-	}
 	result := db.Where("id = ?", issueID).Find(&issue)
 	if result.Error != nil {
 		return nil, errors.New("record is not found")
@@ -47,7 +47,11 @@ func (*issuerepository) GetDetails(issueID string) (*model.Issue, error) {
 	return &issue, nil
 }
 
-func (*issuerepository) UpdateStatus(issueID string, status string) error {
+func (*issueRepository) UpdateStatus(issueID string, status string) error {
+	if issueID == "" {
+		return errors.New("issue id can not be empty")
+	}
+
 	var issue *model.Issue
 	db := postgres.Init()
 	sqlDb, _ := db.DB()

@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	tokenHandler   handler.TokenHandler    = handler.NewTokenHandler()
-	testHandler    handler.TestHandler     = handler.NewTestConnectionHandlers()
-	issueHandler   handler.IssueHandler    = handler.NewIssueHandler()
-	commentHandler handler.CommentsHandler = handler.NewCommentHandler()
+	tokenHandler   = handler.NewTokenHandler()
+	testHandler    = handler.NewTestConnectionHandlers()
+	issueHandler   = handler.NewIssueHandler()
+	commentHandler = handler.NewCommentHandler()
 )
 
 func Router() *fiber.App {

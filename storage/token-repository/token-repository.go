@@ -13,14 +13,14 @@ type TokenRepository interface {
 	GetToken(tokenId string) (*model.Token, error)
 }
 
-type repo struct{}
+type tokenRepository struct{}
 
 func NewTokenRepository() TokenRepository {
-	return &repo{}
+	return &tokenRepository{}
 }
 
 // AddToken implements TokenRepository
-func (*repo) AddToken(token *model.Token) (*model.Token, error) {
+func (*tokenRepository) AddToken(token *model.Token) (*model.Token, error) {
 	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
@@ -32,7 +32,7 @@ func (*repo) AddToken(token *model.Token) (*model.Token, error) {
 }
 
 // GetToken implements TokenRepository
-func (*repo) GetToken(tokenId string) (*model.Token, error) {
+func (*tokenRepository) GetToken(tokenId string) (*model.Token, error) {
 	var token model.Token
 	db := postgres.Init()
 	sqlDb, _ := db.DB()

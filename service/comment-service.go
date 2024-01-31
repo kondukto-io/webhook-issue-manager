@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	commentrepo commentrepository.CommentRepository = commentrepository.NewCommentHandler()
+	commentRepo = commentrepository.NewCommentHandler()
 )
 
 type CommentService interface {
@@ -17,14 +17,14 @@ type CommentService interface {
 	GetComment(issueID string) (*model.CommentDTOArray, error)
 }
 
-type commentservice struct{}
+type commentService struct{}
 
 func NewCommentService() CommentService {
-	return &commentservice{}
+	return &commentService{}
 }
 
 // CreateComment implements CommentService
-func (*commentservice) CreateComment(commentReq *model.CommentReq) error {
+func (*commentService) CreateComment(commentReq *model.CommentReq) error {
 	id, _ := uuid.NewRandom()
 	assignee := &model.Assignee{Id: id.String(), Email: commentReq.Assignee.Email, UserName: commentReq.Assignee.UserName}
 	assigneeId, err := assigneerepo.AddAssignee(assignee)
@@ -34,7 +34,7 @@ func (*commentservice) CreateComment(commentReq *model.CommentReq) error {
 	commentId, _ := uuid.NewRandom()
 	comment := &model.Comment{Id: commentId.String(), IssueId: commentReq.IssueId, CreatedAt: time.Now(), Body: commentReq.Body, AssigneeId: assigneeId}
 
-	err = commentrepo.AddComments(comment)
+	err = commentRepo.AddComments(comment)
 	if err != nil {
 		return err
 	}
@@ -42,8 +42,8 @@ func (*commentservice) CreateComment(commentReq *model.CommentReq) error {
 }
 
 // GetComment implements CommentService
-func (*commentservice) GetComment(issueID string) (*model.CommentDTOArray, error) {
-	comments, err := commentrepo.GetComments(issueID)
+func (*commentService) GetComment(issueID string) (*model.CommentDTOArray, error) {
+	comments, err := commentRepo.GetComments(issueID)
 	if err != nil {
 		return nil, err
 	}

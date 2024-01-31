@@ -12,14 +12,14 @@ type AssigneeRepository interface {
 	GetAssignee(assigneeId string) (*model.Assignee, error)
 }
 
-type assignerepository struct{}
+type assigneeRepository struct{}
 
 func NewAssigneeHandler() AssigneeRepository {
-	return &assignerepository{}
+	return &assigneeRepository{}
 }
 
 // AddAssignee implements AssigneeRepository
-func (*assignerepository) AddAssignee(assignee *model.Assignee) (string, error) {
+func (*assigneeRepository) AddAssignee(assignee *model.Assignee) (string, error) {
 	db := postgres.Init()
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
@@ -29,7 +29,7 @@ func (*assignerepository) AddAssignee(assignee *model.Assignee) (string, error) 
 }
 
 // GetAssignee implements AssigneeRepository
-func (*assignerepository) GetAssignee(assigneeId string) (*model.Assignee, error) {
+func (*assigneeRepository) GetAssignee(assigneeId string) (*model.Assignee, error) {
 	var assignee *model.Assignee
 	db := postgres.Init()
 	sqlDb, _ := db.DB()

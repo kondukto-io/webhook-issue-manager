@@ -6,21 +6,21 @@ import (
 )
 
 var (
-	attachmentrepo attachmentrepository.AttachmentRepository = attachmentrepository.NewAttachmentRepository()
+	attachmentRepo = attachmentrepository.NewAttachmentRepository()
 )
 
 type AttachmentService interface {
 	CreateAttachment(attachmentReq *model.AttachmentReq) error
 }
 
-type attachmentservice struct{}
+type attachmentService struct{}
 
 func NewAttachmentService() AttachmentService {
-	return &attachmentservice{}
+	return &attachmentService{}
 }
 
-func (*attachmentservice) CreateAttachment(attachmentReq *model.AttachmentReq) error {
-	err := attachmentrepo.AddAttachment(attachmentReq)
+func (*attachmentService) CreateAttachment(attachmentReq *model.AttachmentReq) error {
+	err := attachmentRepo.AddAttachment(attachmentReq)
 	if err != nil {
 		return err
 	}

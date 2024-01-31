@@ -6,22 +6,18 @@ import (
 
 	"github.com/webhook-issue-manager/config"
 	model "github.com/webhook-issue-manager/model"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func Init() *gorm.DB {
-	config, err := config.Config("../config.yaml")
-	if err != nil {
-		log.Fatal(err)
-	}
+	appConfig := config.Config("config.yaml")
 
-	var host = config.Hostname
-	var port = config.Port
-	var database = config.Database
-	var user = config.User
-	var password = config.Password
+	var host = appConfig.Host
+	var port = appConfig.Port
+	var database = appConfig.Database
+	var user = appConfig.User
+	var password = appConfig.Password
 	var dsn = fmt.Sprintf("host=%s user=%s password=%d dbname=%s port=%d sslmode=disable", host, user, password, database, port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {

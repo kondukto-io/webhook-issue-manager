@@ -1,55 +1,69 @@
 package model
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
-
-	"database/sql/driver"
 
 	"github.com/lib/pq"
 )
 
-type IssueReq struct {
-	ID          string         `json:"id" gorm:"primaryKey"`
-	Status      string         `json:"status"`
-	Title       string         `json:"title"`
-	Fp          bool           `json:"fp"`
-	Link        string         `json:"link"`
-	Name        string         `json:"name"`
-	Path        string         `json:"path"`
-	Severity    string         `json:"severity"`
-	TemplateMD  string         `json:"template_md"`
-	ProjectName string         `json:"project_name"`
-	Assignee    Assignee       `json:"assignee"`
-	Labels      pq.StringArray `json:"labels" gorm:"type:text[]"`
-	VulnDetail  interface{}    `json:"vulnerability"`
+type CreateIssueRequest struct {
+	Status              string      `json:"status"`
+	Title               string      `json:"title"`
+	Fp                  bool        `json:"fp"`
+	Link                string      `json:"link"`
+	Name                string      `json:"name"`
+	Path                string      `json:"path"`
+	Severity            string      `json:"severity"`
+	TemplateMD          string      `json:"template_md"`
+	ProjectName         string      `json:"project_name"`
+	Assignee            Assignee    `json:"assignee"`
+	Labels              []string    `json:"labels"`
+	VulnerabilityDetail interface{} `json:"vulnerability"`
+	DueDate             string      `json:"due_date"`
+}
+
+type StatusUpdateRequest struct {
+	ID     string   `json:"-"`
+	Labels []string `json:"labels,omitempty"`
+	Status string   `json:"status,omitempty"`
 }
 
 type JSONB []interface{}
 
+type IssueLinks struct {
+	Self string `json:"self"`
+	HTML string `json:"html"`
+}
+
 type Issue struct {
-	ID          string         `json:"id" gorm:"primaryKey"`
-	Status      string         `json:"status"`
-	Title       string         `json:"title"`
-	Fp          bool           `json:"fp"`
-	Link        string         `json:"link"`
-	Name        string         `json:"name"`
-	Path        string         `json:"path"`
-	Severity    string         `json:"severity"`
-	TemplateMD  string         `json:"template_md"`
-	ProjectName string         `json:"project_name"`
-	AssigneeID  string         `json:"assignee_id"`
-	Labels      pq.StringArray `json:"labels" gorm:"type:text[]"`
-	VulnDetail  JSONB          `json:"vulnerability" gorm:"type:jsonb"`
+	ID                  string         `json:"id" gorm:"primaryKey"`
+	Status              string         `json:"status"`
+	Title               string         `json:"title"`
+	Fp                  bool           `json:"fp"`
+	Link                string         `json:"link"`
+	Name                string         `json:"name"`
+	Path                string         `json:"path"`
+	Severity            string         `json:"severity"`
+	TemplateMD          string         `json:"template_md"`
+	ProjectName         string         `json:"project_name"`
+	AssigneeID          string         `json:"assignee_id"`
+	Labels              pq.StringArray `json:"labels" gorm:"type:text[]"`
+	VulnerabilityDetail JSONB          `json:"vulnerability" gorm:"type:jsonb"`
+	DueDate             string         `json:"due_date"`
+	Links               *IssueLinks    `json:"links,omitempty" gorm:"-"`
 }
 
 type IssueDTO struct {
-	ID         string   `json:"id" gorm:"primaryKey"`
-	Status     string   `json:"status"`
-	Title      string   `json:"title"`
-	TemplateMD string   `json:"template_md"`
-	Assignee   Assignee `json:"assignee"  gorm:"foreignKey:AssigneeID;references:Id"`
-	Labels     []string `json:"labels"`
+	ID         string      `json:"id"`
+	Status     string      `json:"status"`
+	Title      string      `json:"title"`
+	TemplateMD string      `json:"template_md"`
+	Assignee   Assignee    `json:"assignee"`
+	Labels     []string    `json:"labels"`
+	DueDate    string      `json:"due_date"`
+	Links      *IssueLinks `json:"links,omitempty"`
 }
 
 // Value Marshal

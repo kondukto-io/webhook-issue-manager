@@ -10,28 +10,28 @@ import (
 )
 
 var (
-	issueRepo issuerepository.IssueRepository = issuerepository.NewIssueRepository()
+	issueRepo = issuerepository.NewIssueRepository()
 )
 
 type IssueService interface {
-	CreateIssue(issueReq *model.IssueReq) (*model.Issue, error)
-	GetDetails(issueID string) (*model.IssueDTO, error)
-	UpdateStatus(issueID string, status string) error
+	CreateIssue(*model.CreateIssueRequest) (*model.Issue, error)
+	GetDetails(string) (*model.IssueDTO, error)
+	UpdateStatus(request *model.StatusUpdateRequest) error
 }
 
-type issueservice struct{}
+type issueService struct{}
 
 func NewIssueService() IssueService {
-	return &issueservice{}
+	return &issueService{}
 }
 
-func (*issueservice) CreateIssue(issueReq *model.IssueReq) (*model.Issue, error) {
-	newAssigneID, _ := uuid.NewRandom()
+func (*issueService) CreateIssue(request *model.CreateIssueRequest) (*model.Issue, error) {
+	newAssigneeID, _ := uuid.NewRandom()
 
 	var assignee = &model.Assignee{
-		Id:       newAssigneID.String(),
-		Email:    issueReq.Assignee.Email,
-		UserName: issueReq.Assignee.UserName,
+		Id:       newAssigneeID.String(),
+		Email:    request.Assignee.Email,
+		UserName: request.Assignee.UserName,
 	}
 
 	assigneeID, err := assigneerepo.AddAssignee(assignee)
@@ -41,29 +41,32 @@ func (*issueservice) CreateIssue(issueReq *model.IssueReq) (*model.Issue, error)
 
 	var issueID = fmt.Sprintf("%d", time.Now().UnixNano())
 	var issue = &model.Issue{
-		ID:          issueID,
-		Status:      issueReq.Status,
-		Title:       issueReq.Title,
-		Fp:          issueReq.Fp,
-		Link:        issueReq.Link,
-		Name:        issueReq.Name,
-		Path:        issueReq.Path,
-		Severity:    issueReq.Severity,
-		ProjectName: issueReq.ProjectName,
-		TemplateMD:  issueReq.TemplateMD,
-		AssigneeID:  assigneeID,
-		Labels:      issueReq.Labels,
-		VulnDetail:  model.JSONB{issueReq.VulnDetail},
+		ID:                  issueID,
+		Status:              request.Status,
+		Title:               request.Title,
+		Fp:                  request.Fp,
+		Link:                request.Link,
+		Name:                request.Name,
+		Path:                request.Path,
+		Severity:            request.Severity,
+		ProjectName:         request.ProjectName,
+		TemplateMD:          request.TemplateMD,
+		AssigneeID:          assigneeID,
+		Labels:              request.Labels,
+		VulnerabilityDetail: model.JSONB{request.VulnerabilityDetail},
+		DueDate:             request.DueDate,
 	}
 
 	if err = issueRepo.AddIssue(issue); err != nil {
 		return nil, err
 	}
 
+	issue.Links = &model.IssueLinks{HTML: fmt.Sprintf("http://localhost:8080/projects/%s/issues/%s", issue.ProjectName, issue.ID)}
+
 	return issue, err
 }
 
-func (*issueservice) GetDetails(issueID string) (*model.IssueDTO, error) {
+func (*issueService) GetDetails(issueID string) (*model.IssueDTO, error) {
 	issue, err := issueRepo.GetDetails(issueID)
 	if err != nil {
 		return nil, err
@@ -74,21 +77,24 @@ func (*issueservice) GetDetails(issueID string) (*model.IssueDTO, error) {
 		return nil, err
 	}
 
-	var issueDTO = model.IssueDTO{
+	issueDTO := model.IssueDTO{
 		ID:         issue.ID,
 		Status:     issue.Status,
 		Title:      issue.Title,
 		TemplateMD: issue.TemplateMD,
 		Assignee:   model.Assignee{Email: assignee.Email, UserName: assignee.UserName},
 		Labels:     issue.Labels,
+		DueDate:    issue.DueDate,
 	}
+
+	issueDTO.Links = &model.IssueLinks{HTML: fmt.Sprintf("http://localhost:8080/projects/%s/issues/%s", issue.ProjectName, issue.ID)}
 
 	return &issueDTO, nil
 }
 
-func (*issueservice) UpdateStatus(issueID string, status string) error {
-	if err := issueRepo.UpdateStatus(issueID, status); err != nil {
-		return fmt.Errorf("failed to update issue status")
+func (*issueService) UpdateStatus(request *model.StatusUpdateRequest) error {
+	if err := issueRepo.UpdateStatus(request.ID, request.Status); err != nil {
+		return fmt.Errorf("failed to update issue status: %w", err)
 	}
 
 	return nil

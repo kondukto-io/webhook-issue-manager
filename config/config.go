@@ -2,6 +2,9 @@ package config
 
 import (
 	"log"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/webhook-issue-manager/model"
 
@@ -10,21 +13,30 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Config(file string) (*model.Config, error) {
-	var config model.Config
-	var vi = viper.New()
-	vi.SetConfigFile(file)
-	if err := vi.ReadInConfig(); err != nil {
-		return nil, err
+func Config(configFile string) *model.Config {
+	if _, err := os.Stat(configFile); err != nil {
+		log.Fatalf("failed to reach config directory: %v", err)
 	}
 
-	config.Port = vi.GetInt("port")
-	config.Hostname = vi.GetString("hostname")
-	config.User = vi.GetString("postgres_user")
-	config.Password = vi.GetInt("postgres_password")
-	config.Database = vi.GetString("postgres_database")
+	viper.SetConfigName(filepath.Base(configFile))
+	viper.SetConfigFile(configFile)
+	viper.SetConfigType("yaml")
 
-	return &config, nil
+	viper.SetEnvKeyReplacer(strings.NewReplacer(`.`, `_`))
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("failed to read config file: %s", err)
+	}
+
+	var config model.Config
+	config.Port = viper.GetInt("application.db.postgres.port")
+	config.Host = viper.GetString("application.db.postgres.host")
+	config.User = viper.GetString("application.db.postgres.user")
+	config.Password = viper.GetInt("application.db.postgres.password")
+	config.Database = viper.GetString("application.db.postgres.database")
+
+	return &config
 }
 
 func MinioConnection() (*minio.Client, error) {

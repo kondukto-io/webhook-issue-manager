@@ -3,7 +3,7 @@ package service
 import (
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/webhook-issue-manager/model"
 	tokenrepository "github.com/webhook-issue-manager/storage/token-repository"
@@ -18,17 +18,17 @@ type TokenService interface {
 	GetToken(tokenId string) (*model.Token, error)
 }
 
-type tokenservice struct{}
+type tokenService struct{}
 
 var (
-	repo tokenrepository.TokenRepository = tokenrepository.NewTokenRepository()
+	tokenRepo = tokenrepository.NewTokenRepository()
 )
 
 func NewTokenService() TokenService {
-	return &tokenservice{}
+	return &tokenService{}
 }
 
-func (*tokenservice) CreateToken() (*model.Token, error) {
+func (*tokenService) CreateToken() (*model.Token, error) {
 	tokenID, err := uuid.NewRandom()
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (*tokenservice) CreateToken() (*model.Token, error) {
 
 	token := model.Token{TokenID: tokenID.String(), TokenStr: tokenStr}
 
-	addedToken, err := repo.AddToken(&token)
+	addedToken, err := tokenRepo.AddToken(&token)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +55,8 @@ func (*tokenservice) CreateToken() (*model.Token, error) {
 	return addedToken, nil
 }
 
-func (*tokenservice) GetToken(tokenId string) (*model.Token, error) {
-	token, err := repo.GetToken(tokenId)
+func (*tokenService) GetToken(tokenId string) (*model.Token, error) {
+	token, err := tokenRepo.GetToken(tokenId)
 	if err != nil {
 		return nil, err
 	}

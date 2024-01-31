@@ -2,7 +2,7 @@ package model
 
 type Config struct {
 	Port     int
-	Hostname string
+	Host     string
 	User     string
 	Password int
 	Database string
