@@ -40,7 +40,7 @@ func Config(configFile string) *model.Config {
 }
 
 func MinioConnection() (*minio.Client, error) {
-	var endpoint = "192.168.2.224:9000"
+	var endpoint = "127.0.0.1:9000"
 	var accessKeyID = "minioadmin"
 	var secretAccessKey = "minioadmin"
 

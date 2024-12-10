@@ -14,18 +14,10 @@ import (
 	"github.com/webhook-issue-manager/storage/postgres"
 )
 
-type AttachmentRepository interface {
-	AddAttachment(attachmentReq *model.AttachmentReq) error
-}
-
-type attachmentRepository struct{}
-
-func NewAttachmentRepository() AttachmentRepository {
-	return &attachmentRepository{}
-}
+type minioRepository struct{}
 
 // AddAttachment implements AttachmentRepository
-func (*attachmentRepository) AddAttachment(attachmentReq *model.AttachmentReq) error {
+func (*minioRepository) AddAttachment(attachmentReq *model.AttachmentReq) error {
 	var ctx = context.Background()
 	minioClient, err := config.MinioConnection()
 	if err != nil {
@@ -36,7 +28,7 @@ func (*attachmentRepository) AddAttachment(attachmentReq *model.AttachmentReq) e
 	base64.StdEncoding.Decode(base64Text, []byte(attachmentReq.Base64Content))
 
 	var fileP = "/opt/.kondukto/screenshots"
-	var objectID = attachmentReq.UUID
+	var objectID = attachmentReq.Title
 	var filePath = fmt.Sprintf("%s/%s", fileP, objectID)
 	if err = os.WriteFile(filePath, base64Text, 0644); err != nil {
 		return fmt.Errorf("failed to write file: %w", err)
@@ -80,4 +72,16 @@ func (*attachmentRepository) AddAttachment(attachmentReq *model.AttachmentReq) e
 	db.Create(&attachment)
 
 	return nil
+}
+
+// ListAttachments implements AttachmentRepository
+func (*minioRepository) ListAttachments(issueID string) ([]model.Attachment, error) {
+	var attachments []model.Attachment
+
+	var db = postgres.Init()
+	sqlDb, _ := db.DB()
+	defer sqlDb.Close()
+	db.Where("issue_id = ?", issueID).Find(&attachments)
+
+	return attachments, nil
 }

@@ -8,6 +8,19 @@ import (
 	"github.com/lib/pq"
 )
 
+type Severity string
+
+const (
+	SeverityCritical Severity = "critical"
+	SeverityHigh     Severity = "high"
+	SeverityMedium   Severity = "medium"
+	SeverityLow      Severity = "low"
+)
+
+func (s Severity) String() string {
+	return string(s)
+}
+
 type CreateIssueRequest struct {
 	Status              string      `json:"status"`
 	Title               string      `json:"title"`
@@ -25,9 +38,10 @@ type CreateIssueRequest struct {
 }
 
 type StatusUpdateRequest struct {
-	ID     string   `json:"-"`
-	Labels []string `json:"labels,omitempty"`
-	Status string   `json:"status,omitempty"`
+	ID       string   `json:"-"`
+	Labels   []string `json:"labels,omitempty"`
+	Status   string   `json:"status,omitempty"`
+	Severity Severity `json:"severity,omitempty"`
 }
 
 type JSONB []interface{}
@@ -58,6 +72,7 @@ type Issue struct {
 type IssueDTO struct {
 	ID         string      `json:"id"`
 	Status     string      `json:"status"`
+	Severity   string      `json:"severity"`
 	Title      string      `json:"title"`
 	TemplateMD string      `json:"template_md"`
 	Assignee   Assignee    `json:"assignee"`
