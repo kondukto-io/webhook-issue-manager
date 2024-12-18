@@ -19,6 +19,7 @@ type IssueHandler interface {
 	GetDetails(c *fiber.Ctx) error
 	UpdateStatus(c *fiber.Ctx) error
 	AddAttachment(c *fiber.Ctx) error
+	ListAttachments(c *fiber.Ctx) error
 }
 
 type issueHandler struct{}
@@ -84,4 +85,14 @@ func (*issueHandler) AddAttachment(c *fiber.Ctx) error {
 	}
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{"message": "attachments added successfully"})
+}
+
+func (*issueHandler) ListAttachments(c *fiber.Ctx) error {
+	var issueID = c.Params("id")
+	attachments, err := attachmentService.ListAttachments(issueID)
+	if err != nil {
+		return err
+	}
+
+	return c.Status(http.StatusOK).JSON(attachments)
 }

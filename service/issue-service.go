@@ -80,6 +80,7 @@ func (*issueService) GetDetails(issueID string) (*model.IssueDTO, error) {
 	issueDTO := model.IssueDTO{
 		ID:         issue.ID,
 		Status:     issue.Status,
+		Severity:   issue.Severity,
 		Title:      issue.Title,
 		TemplateMD: issue.TemplateMD,
 		Assignee:   model.Assignee{Email: assignee.Email, UserName: assignee.UserName},
@@ -95,6 +96,10 @@ func (*issueService) GetDetails(issueID string) (*model.IssueDTO, error) {
 func (*issueService) UpdateStatus(request *model.StatusUpdateRequest) error {
 	if err := issueRepo.UpdateStatus(request.ID, request.Status); err != nil {
 		return fmt.Errorf("failed to update issue status: %w", err)
+	}
+
+	if err := issueRepo.UpdateSeverity(request.ID, request.Severity.String()); err != nil {
+		return fmt.Errorf("failed to update issue severity: %w", err)
 	}
 
 	return nil

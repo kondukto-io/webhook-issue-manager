@@ -13,3 +13,16 @@ services:
       - "5432:5432"
     volumes:
       - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
+
+  minio:
+    container_name: minio
+    image: minio/minio
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    ports:
+      - "9000:9000"
+    command: server /data
+    volumes:
+      - $HOME/docker/volumes/minio:/data

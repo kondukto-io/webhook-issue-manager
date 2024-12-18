@@ -11,6 +11,7 @@ var (
 
 type AttachmentService interface {
 	CreateAttachment(attachmentReq *model.AttachmentReq) error
+	ListAttachments(issueID string) ([]model.Attachment, error)
 }
 
 type attachmentService struct{}
@@ -25,4 +26,12 @@ func (*attachmentService) CreateAttachment(attachmentReq *model.AttachmentReq) e
 		return err
 	}
 	return nil
+}
+
+func (*attachmentService) ListAttachments(issueID string) ([]model.Attachment, error) {
+	attachments, err := attachmentRepo.ListAttachments(issueID)
+	if err != nil {
+		return nil, err
+	}
+	return attachments, nil
 }

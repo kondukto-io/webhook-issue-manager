@@ -11,6 +11,7 @@ type IssueRepository interface {
 	AddIssue(issue *model.Issue) error
 	GetDetails(issueID string) (*model.Issue, error)
 	UpdateStatus(issueID string, status string) error
+	UpdateSeverity(issueID string, severity string) error
 }
 
 type issueRepository struct{}
@@ -57,5 +58,18 @@ func (*issueRepository) UpdateStatus(issueID string, status string) error {
 	sqlDb, _ := db.DB()
 	defer sqlDb.Close()
 	db.Model(&issue).Where("id = ?", issueID).Update("status", status)
+	return nil
+}
+
+func (*issueRepository) UpdateSeverity(issueID string, severity string) error {
+	if issueID == "" {
+		return errors.New("issue id can not be empty")
+	}
+
+	var issue *model.Issue
+	db := postgres.Init()
+	sqlDb, _ := db.DB()
+	defer sqlDb.Close()
+	db.Model(&issue).Where("id = ?", issueID).Update("severity", severity)
 	return nil
 }
