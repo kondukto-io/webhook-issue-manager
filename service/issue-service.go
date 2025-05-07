@@ -16,7 +16,7 @@ var (
 type IssueService interface {
 	CreateIssue(*model.CreateIssueRequest) (*model.Issue, error)
 	GetDetails(string) (*model.IssueDTO, error)
-	UpdateStatus(request *model.StatusUpdateRequest) error
+	UpdateIssue(request *model.UpdateIssueRequest) error
 }
 
 type issueService struct{}
@@ -93,13 +93,23 @@ func (*issueService) GetDetails(issueID string) (*model.IssueDTO, error) {
 	return &issueDTO, nil
 }
 
-func (*issueService) UpdateStatus(request *model.StatusUpdateRequest) error {
-	if err := issueRepo.UpdateStatus(request.ID, request.Status); err != nil {
-		return fmt.Errorf("failed to update issue status: %w", err)
+func (*issueService) UpdateIssue(request *model.UpdateIssueRequest) error {
+	if request.Status != "" {
+		if err := issueRepo.UpdateStatus(request.ID, request.Status); err != nil {
+			return fmt.Errorf("failed to update issue status: %w", err)
+		}
 	}
 
-	if err := issueRepo.UpdateSeverity(request.ID, request.Severity.String()); err != nil {
-		return fmt.Errorf("failed to update issue severity: %w", err)
+	if request.Severity != "" {
+		if err := issueRepo.UpdateSeverity(request.ID, request.Severity.String()); err != nil {
+			return fmt.Errorf("failed to update issue severity: %w", err)
+		}
+	}
+
+	if request.Body != "" {
+		if err := issueRepo.UpdateBody(request.ID, request.Body); err != nil {
+			return fmt.Errorf("failed to update issue body: %w", err)
+		}
 	}
 
 	return nil

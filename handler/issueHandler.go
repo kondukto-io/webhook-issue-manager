@@ -17,7 +17,7 @@ var (
 type IssueHandler interface {
 	CreateIssue(c *fiber.Ctx) error
 	GetDetails(c *fiber.Ctx) error
-	UpdateStatus(c *fiber.Ctx) error
+	UpdateIssue(c *fiber.Ctx) error
 	AddAttachment(c *fiber.Ctx) error
 	ListAttachments(c *fiber.Ctx) error
 }
@@ -52,8 +52,8 @@ func (*issueHandler) GetDetails(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(issueDTO)
 }
 
-func (*issueHandler) UpdateStatus(c *fiber.Ctx) error {
-	var request *model.StatusUpdateRequest
+func (*issueHandler) UpdateIssue(c *fiber.Ctx) error {
+	var request *model.UpdateIssueRequest
 	var issueID = c.Params("id")
 
 	if err := json.Unmarshal(c.Body(), &request); err != nil {
@@ -61,12 +61,28 @@ func (*issueHandler) UpdateStatus(c *fiber.Ctx) error {
 	}
 
 	request.ID = issueID
-	if err := issueService.UpdateStatus(request); err != nil {
+	if err := issueService.UpdateIssue(request); err != nil {
 		return err
 	}
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{"id": issueID, "status": request.Status})
 }
+
+// func (*issueHandler) UpdateBody(c *fiber.Ctx) error {
+// 	var request *model.UpdateBodyRequest
+// 	var issueID = c.Params("id")
+
+// 	if err := json.Unmarshal(c.Body(), &request); err != nil {
+// 		return err
+// 	}
+
+// 	request.ID = issueID
+// 	if err := issueService.UpdateBody(request); err != nil {
+// 		return err
+// 	}
+
+// 	return c.Status(http.StatusOK).JSON(fiber.Map{"id": issueID, "body": request.Body})
+// }
 
 // AddAttachment implements AttachmentHandler
 func (*issueHandler) AddAttachment(c *fiber.Ctx) error {

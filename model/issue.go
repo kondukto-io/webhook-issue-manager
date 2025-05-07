@@ -37,11 +37,12 @@ type CreateIssueRequest struct {
 	DueDate             string      `json:"due_date"`
 }
 
-type StatusUpdateRequest struct {
+type UpdateIssueRequest struct {
 	ID       string   `json:"-"`
 	Labels   []string `json:"labels,omitempty"`
 	Status   string   `json:"status,omitempty"`
 	Severity Severity `json:"severity,omitempty"`
+	Body     string   `json:"body,omitempty"`
 }
 
 type JSONB []interface{}
