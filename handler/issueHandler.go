@@ -68,22 +68,6 @@ func (*issueHandler) UpdateIssue(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(fiber.Map{"id": issueID, "status": request.Status})
 }
 
-// func (*issueHandler) UpdateBody(c *fiber.Ctx) error {
-// 	var request *model.UpdateBodyRequest
-// 	var issueID = c.Params("id")
-
-// 	if err := json.Unmarshal(c.Body(), &request); err != nil {
-// 		return err
-// 	}
-
-// 	request.ID = issueID
-// 	if err := issueService.UpdateBody(request); err != nil {
-// 		return err
-// 	}
-
-// 	return c.Status(http.StatusOK).JSON(fiber.Map{"id": issueID, "body": request.Body})
-// }
-
 // AddAttachment implements AttachmentHandler
 func (*issueHandler) AddAttachment(c *fiber.Ctx) error {
 	var attachmentReqArray *model.AttachmentReqArray
