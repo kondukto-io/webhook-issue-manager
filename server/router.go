@@ -29,7 +29,7 @@ func Router() *fiber.App {
 
 		issueGroup.Post("", issueHandler.CreateIssue)
 		issueGroup.Get("/:id", issueHandler.GetDetails)
-		issueGroup.Patch("/:id", issueHandler.UpdateStatus)
+		issueGroup.Patch("/:id", issueHandler.UpdateIssue)
 		issueGroup.Post("/:id/attachments", issueHandler.AddAttachment)
 		issueGroup.Get("/:id/attachments", issueHandler.ListAttachments)
 
